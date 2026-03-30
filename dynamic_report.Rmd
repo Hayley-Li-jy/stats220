@@ -1,0 +1,77 @@
+---
+title: My dynamic report
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+
+```
+
+## Tracking My Daily Short Video Watching Habits
+
+This dynamic report summarises data collected from my observational logging of daily short video watching sessions.
+
+This report analyses how many videos were watched, how sessions were rated, what type of content was mostly watched, and what time of day the viewing happened.
+
+```{r}
+library(tidyverse)
+
+logged_data <- read_csv(
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZDCEDFuSOD-daLJTgA9o8ndZBu0fLPIPHLAqLcbNZrXhuOH3vQh9mMpdoRhoXVc1n0cTF4RfT9lRm/pub?output=csv",
+  show_col_types = FALSE
+)
+
+latest_data <- logged_data %>%
+  rename(
+    timestamp = Timestamp,
+    num_videos = `How many videos did you watch in this session?`,
+    content_type = `What type of content did you mostly watch?`,
+    time_of_day = `What time of day was this?`,
+    platform = `Which platform did you use?`,
+    rating = `How would you rate this session?`
+  )
+```
+
+### Dynamic summary comments
+
+```{r}
+total_sessions <- nrow(latest_data)
+avg_videos <- mean(latest_data$num_videos)
+avg_rating <- mean(latest_data$rating)
+max_videos <- max(latest_data$num_videos)
+```
+
+The dataset currently contains `r total_sessions` observations.
+
+On average, I watched `r round(avg_videos, 2)` videos per session.
+
+The average session rating was `r round(avg_rating, 2)` out of 5.
+
+The highest number of videos watched in one session was `r max_videos`.
+
+### Bar chart: content type
+
+```{r}
+ggplot(latest_data, aes(x = content_type)) +
+  geom_bar() +
+  labs(
+    title = "Types of Content Mostly Watched",
+    x = "Content type",
+    y = "Count"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### Bar chart: time of day
+
+```{r}
+ggplot(latest_data, aes(x = time_of_day)) +
+  geom_bar() +
+  labs(
+    title = "Time of Day of Video Watching Sessions",
+    x = "Time of day",
+    y = "Count"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
